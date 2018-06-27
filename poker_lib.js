@@ -52,7 +52,6 @@ function getDeck()
                   };
 
 
-
     var usr1=new User();
     var usr1_cards=usr1.getCards();
         console.log(usr1_cards);
@@ -61,6 +60,7 @@ Array.prototype.flush_check = function() {
   for(var i = 0; i < this.length; i++)
             {
         if(this[i].Suit !== this[0].Suit)
-              return false;
+              return "Not Flush";
               }
+
                                         }

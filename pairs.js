@@ -9,8 +9,9 @@ import _ from 'lodash';
             return _.indexOf(order, obj.Value);
                                                   });
 
-                //console.log(sorted_arr);
+          //console.log(sorted_arr);
 
+                  ///inserting count property in the object
                     for(var i=0; i<arr.length; i++){
                             sorted_arr[i].cnt=0;
                                                   }
@@ -40,8 +41,8 @@ import _ from 'lodash';
       if(filteredArray.length==3 && max.cnt==2)
       console.log("exo 2 pairs");
       if(filteredArray.length==3 && max.cnt==3 )
-      console.log("three of a kind")
+      console.log("three of a kind");
       if(filteredArray.length==2 && max.cnt==3 )
-      console.log("three of a kind and a pair")
+      console.log("Full House");
       if(filteredArray.length==2 && max.cnt==4 )
       console.log("four of kind");
