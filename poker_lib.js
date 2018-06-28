@@ -3,7 +3,7 @@ import _ from 'lodash';
 
 var CardsFolders=["Clubs","Diamonds","Hearts","Spades"]; //C=Clubs  D=Diamonds H=Hearts S=Spades
 var cardWeights = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
-
+var deck;
 
 const HANDRANKING = [
   {category: 'Royal Flush'},
@@ -20,7 +20,7 @@ const HANDRANKING = [
 
 function getDeck()
 {
-	var deck = new Array();
+	 deck = new Array();
 
 	for(var i = 0; i < CardsFolders.length; i++)
 	{
