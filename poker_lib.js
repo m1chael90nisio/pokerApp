@@ -4,6 +4,7 @@ import _ from 'lodash';
 var CardsFolders=["Clubs","Diamonds","Hearts","Spades"]; //C=Clubs  D=Diamonds H=Hearts S=Spades
 var cardWeights = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K"];
 var deck;
+var order = [ "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K","A"];
 
 const HANDRANKING = [
   {category: 'Royal Flush'},
@@ -20,7 +21,7 @@ const HANDRANKING = [
 
 function getDeck()
 {
-	 deck = new Array();
+	var deck = new Array();
 
 	for(var i = 0; i < CardsFolders.length; i++)
 	{
@@ -35,17 +36,25 @@ function getDeck()
 	return deck;
 }
 
-  var de=getDeck();
+   deck=getDeck();
 
 
   class User{
       getCards(){
-        const usr_cards=[];
+        var usr_cards=[];
         for(let i=0; i<=4; i++){
-            usr_cards.push(de[i]);
-          de=_.pull(de,de[i]);
+            usr_cards.push(deck[i]);
+          deck=_.pull(deck,deck[i]);
                                 }
-      console.log(de.length+"\n -- NEW USER -- \n");
+      console.log(deck.length+"\n -- NEW USER -- \n");
+
+       usr_cards = _.sortBy(usr_cards, function(obj){
+            return _.indexOf(order, obj.Value);
+                                                  });
+          //    console.log(usr_cards);
+
+
+
       return usr_cards;
               }
 
@@ -55,6 +64,20 @@ function getDeck()
     var usr1=new User();
     var usr1_cards=usr1.getCards();
         console.log(usr1_cards);
+/*
+Array.prototype.changeCards=function(){
+  for(var i=0; i <this.length-1; i++){
+    de.push(usr1_cards[i]);
+    de=_.pull(de,de[de.length-1]);
+      this.push(de[i]);
+
+
+  }
+}
+usr1_cards.changeCards();
+console.log(usr1_cards);
+*/
+
 
 Array.prototype.flush_check = function() {
   for(var i = 0; i < this.length; i++)
