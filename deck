@@ -21,9 +21,9 @@ var cardWeights = [
 
 (function getDeck() {
 
-  for (let y of CardsFolders) {
-    for (let x of cardWeights) {
-      var card = {
+  for (const y of CardsFolders) {
+    for (const x of cardWeights) {
+      const card = {
         Value: x,
         Suit: y
       };
@@ -34,14 +34,12 @@ var cardWeights = [
   return deck;
 }());
 
-//console.log(deck);
 function getCards() {
-  var usr_cards = [];
+  let usr_cards = [];
   for (let i = 0; i <= 4; i++) {
     usr_cards.push(deck[i]);
     deck = _.pull(deck, deck[i]);
   }
-  //console.log(deck.length+"\n -- NEW USER -- \n");
 
   usr_cards = _.sortBy(usr_cards, function(obj) {
     return _.indexOf(cardWeights, obj.Value);
@@ -50,114 +48,97 @@ function getCards() {
   return usr_cards;
 }
 
-function Player(name) {
-  this.name = name;
-  this.cards = getCards();
-  this.ranktype = this.handsCheck();
-  this.pot = "120";
+class Player {
+  constructor(name) {
+    this.name = name;
+    this.cards = getCards();
+    this.ranktype = this.handsCheck();
+    this.pot = "120";
+  }
 }
 
 Player.prototype.flush_check = function() {
-  var flag = true;
-  /////obj to Array
 
+  //obj to Array
   const array = Array.from(this.cards);
-  var temp = array[0].Suit;
-  //  console.log(temp);
 
   for (const el of array) {
-    if (!flag)
-      return flag;
-
-    (temp == el.Suit)
-      ? flag = true
-      : flag = false;
-  }
-  return flag;
+    if (array[0].Suit !== el.Suit)
+      return false;
+    }
+  return true;
 
 }
 
 Player.prototype.royal_flush = function() {
-  var royal = ['10', 'J', 'Q', 'K', 'A'];
-  var flag = true;
+  const royal = ['10', 'J', 'Q', 'K', 'A'];
 
-  for (var i = this.cards.length - 1; i >= 0; i--) {
+  ///alternative flush check implementation using unique Suits
+  const numSuit = _.uniqBy(this.cards, function(x) {
+    return x.Suit;
+  });
 
-    if (flag == false) {
-      //  console.log("No Royal,Sorry!");
+  if (numSuit != 1)
+    return false;
+
+  ///
+
+  for (const rank of this.cards) {
+
+    if (royal.shift() !== rank.Value) {
       return false;
     }
-
-    flag = false;
-    for (var j = this.length - 1; j >= 0; j--) {
-
-      if (this.cards[j].Value == royal[i]) {
-        flag = true;
-      }
-
-    }
   }
-  if (flag) {
-    //  console.log("ROYAL");
-    return true;
-  }
+  return true;
 
 }
 
 Player.prototype.straightCheck = function() {
 
-  var index = _.indexOf(cardWeights, this.cards[0].Value);
-  var Straightflag = true;
+  let index = _.indexOf(cardWeights, this.cards[0].Value);
 
-  for (var i = 0; i < this.cards.length; i++) {
-    if (this.cards[i].Value != cardWeights[index]) {
-      Straightflag = false;
-      //console.log("no Straight");
-      return Straightflag;
+  for (const card of this.cards) {
+    if (card.Value != cardWeights[index]) {
+      return false;
     }
     index++;
-    //console.log(index);
   }
-  if (Straightflag)
-    return true;
-  }
+  return true;
+
+}
 
 Player.prototype.straight_flush_Check = function() {
 
-  var numSuit = _.uniqBy(this.cards, function(x) {
+  const numSuit = _.uniqBy(this.cards, function(x) {
     return x.Suit;
   });
-  //  console.log(numSuit);
-  var index = _.indexOf(cardWeights, this.cards[0].Value);
-  var Straightflag = true;
 
-  for (var i = 0; i < this.cards.length; i++) {
-    if (this.cards[i].Value != cardWeights[index]) {
-      Straightflag = false;
-      //console.log("no Straight");
-      return Straightflag;
+  let index = _.indexOf(cardWeights, this.cards[0].Value);
+
+  for (const card of this.cards) {
+    if (card.Value != cardWeights[index]) {
+      return false;
     }
     index++;
-    //console.log(index);
   }
-  if ((Straightflag) && (numSuit.length == 5)) {
-    return Straightflag;
+  if (numSuit.length == 1) {
+    return true;
   }
 
 }
 
 Player.prototype.pairsCheck = function() {
   ///inserting count property in the object
-  var filteredArray = this.cards;
-  for (var i = 0; i < filteredArray.length; i++) {
-    filteredArray[i].cnt = 0;
+
+  let filteredArray = _.cloneDeep(this.cards);
+  for (const el of filteredArray) {
+    el.cnt = 0;
   }
 
-  for (var j = 0; j < filteredArray.length; j++) {
-    for (var i = 0; i < filteredArray.length; i++) {
-      if (filteredArray[j].Value == filteredArray[i].Value)
-        filteredArray[j].cnt = filteredArray[j].cnt + 1;
-
+  for (const outer of filteredArray) {
+    for (const inner of filteredArray) {
+      if (outer.Value == inner.Value)
+        inner.cnt = inner.cnt + 1;
       }
 
   }
@@ -166,70 +147,35 @@ Player.prototype.pairsCheck = function() {
     return x.Value;
   })
 
-  this.cards = filteredArray;
-  //console.log(filteredArray);
-  //  console.log(this.cards);
-
-  var max = _.maxBy(this.cards, function(o) {
+  const max = _.maxBy(filteredArray, function(o) {
     return o.cnt;
   });
   //console.log(max);
 
-  var msg = "";
-  if (this.cards.length == 4) {
-    //console.log("exo 1 pair");
-    msg = "1 pair of " + max.Value + " ";
-    return msg;
-  }
-  if (this.cards.length == 3 && max.cnt == 2) {
-    msg = "2 pairs ";
-    return msg;
-  }
-  if (this.cards.length == 3 && max.cnt == 3) {
-    //console.log("three of a kind");
-    msg = "3 of a kind of " + max.Value + " ";
-    return msg;
-  }
-  if (this.cards.length == 2 && max.cnt == 3) {
-    //console.log("Full House");
-    msg = "Full House of " + max.Value + " ";
-    return msg;
-  }
-  if (this.cards.length == 2 && max.cnt == 4) {
-    //console.log("four of kind");
-    msg = "four of kind of " + max.Value + " ";
-    return msg;
+  if (filteredArray.length == 4) {
+    return true;
+
   } else
     return false;
 
   }
 
 Player.prototype.handsCheck = function() {
-  var state = "";
-  state = this.royal_flush();
 
-  if (state == true)
-    return "Royal flush";
+  if (this.royal_flush())
+    return "Royal Flush";
 
-  state = this.flush_check();
-
-  if (state == true)
+  if (this.flush_check())
     return "Flush";
 
-  state = this.straightCheck();
-
-  if (state == true)
+  if (this.straightCheck())
     return "Straight";
 
-  state = this.straight_flush_Check();
-
-  if (state == true)
+  if (this.straight_flush_Check())
     return "Straight flush_check";
 
-  state = this.pairsCheck();
-
-  if (state != false)
-    return state;
+  if (this.pairsCheck())
+    return "Pairs type";
 
 else
     return "high cards";
@@ -237,7 +183,4 @@ else
   }
 
 var plr1 = new Player("Mike");
-//var plr2 = new Player("Nik");
-
-console.log(plr1)
-console.log(typeof plr1)
+console.log(plr1);
